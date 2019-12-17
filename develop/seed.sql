@@ -3,19 +3,25 @@ USE employee_tracker_db;
 /* Insert 3 Rows into your new table */
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-  ("Chris", "Underwood", 1, 1);
+  ("Chris", "Underwood", 1, NULL);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-  ("Joe", "Smith", 1, 1);
+  ("Joe", "Smith", 1, NULL);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-  ("Carlos", "Gonzalez", 1, 1);
+  ("Carlos", "Gonzalez", 1, NULL);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES
-  ("Anne", "Thomas", 1, 1);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
+  ("Anne", "Thomas", 1, NULL);
+INSERT INTO manager (first_name, last_name)
 VALUES
-  ("Jane", "Green", 1, 1);
+  ("Tom", "Black");
+INSERT INTO manager (first_name, last_name)
+VALUES
+  ("Mary", "Shoemaker");
+INSERT INTO manager (first_name, last_name)
+VALUES
+  ("Gunther", "Johnson");
 INSERT INTO department (name)
 VALUES
   ("Engineering");
@@ -28,12 +34,9 @@ VALUES
 INSERT INTO department (name)
 VALUES
   ("Sales");
-INSERT INTO department (name)
-VALUES
-  ("Marketing");
 INSERT INTO roles (title, salary, department_id)
 VALUES
-  ("Developer", 80000, 1);
+  ("Engineer", 80000, 1);
 INSERT INTO roles (title, salary, department_id)
 VALUES
   ("Accountant", 70000, 2);
@@ -43,6 +46,15 @@ VALUES
 INSERT INTO roles (title, salary, department_id)
 VALUES
   ("Sales Rep", 75000, 4);
-INSERT INTO roles (title, salary, department_id)
-VALUES
-  ("Creative Director", 75000, 5);
+SELECT
+  *
+FROM employee;
+SELECT
+  *
+FROM department;
+SELECT
+  *
+FROM roles;
+SELECT
+  *
+FROM manager;

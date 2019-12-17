@@ -36,6 +36,7 @@ function runProgram() {
         "View departments?",
         "View roles?",
         "View employees?",
+        "View managers?",
         "Update employee roles?",
         "exit"
       ]
@@ -50,6 +51,10 @@ function runProgram() {
           addEmployee();
           break;
 
+        case "Remove an employee?":
+          deleteEmployee();
+          break;
+
         case "View departments?":
           viewDepartments();
           break;
@@ -62,6 +67,10 @@ function runProgram() {
           viewEmployees();
           break;
 
+        case "View managers?":
+          viewManagers();
+          break;
+
         case "Update employee roles?":
           updatesEmployeeRoles();
           break;
@@ -70,6 +79,93 @@ function runProgram() {
           connection.end();
           break;
       }
+    });
+}
+
+function addEmployee() {
+  let managerNames = [];
+  let managersInfo;
+  connection.query("SELECT * FROM manager", function(err, res) {
+    if (err) throw err;
+    managersInfo = res;
+    res.forEach(element => {
+      managerNames.push(element.first_name + " " + element.last_name);
+    });
+    connection.end();
+  });
+  inquirer
+    .prompt([
+      {
+        name: "name",
+        type: "input",
+        message: "What is their first name?"
+      },
+      {
+        name: "lastName",
+        type: "input",
+        message: "What is their last name?"
+      },
+      {
+        name: "role",
+        type: "list",
+        message: "What is their role?",
+        choices: ["Engineer", "Accountant", "Lawyer", "Sales Rep"]
+      },
+      {
+        name: "manager",
+        type: "list",
+        message: "Who is their manager?",
+        choices: managerNames
+      }
+    ])
+    .then(function(answer) {
+      // when finished prompting, insert a new item into the db with that info
+      let managerId = saveManagerIdToEmployee(answer.manager, managersInfo);
+      console.log("this is the manager answer", saveManagerIdToEmployee);
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: answer.name,
+          last_name: answer.lastName,
+          role_id: answer.role,
+          manager_id: managerId
+        },
+        function(err) {
+          if (err) throw err;
+
+          start();
+        }
+      );
+    });
+}
+
+function deleteEmployee() {
+  inquirer
+    .prompt([
+      {
+        name: "employees",
+        type: "list",
+        message: "What is their first name?"
+      }
+    ])
+    .then(function(answer) {
+      // when finished prompting, insert a new item into the db with that info
+      connection.query(
+        "INSERT INTO employee SET ?",
+        {
+          first_name: answer.name,
+          last_name: answer.lastName,
+          role_id: answer.role,
+          manager_id: answer.manager,
+          manager_id: answer.manager
+        },
+        function(err) {
+          if (err) throw err;
+          console.log("Your auction was created successfully!");
+          // re-prompt the user for if they want to bid or post
+          start();
+        }
+      );
     });
 }
 
@@ -109,5 +205,25 @@ function viewEmployees() {
     //     console.log(e.name);
     //   });
     connection.end();
+  });
+}
+
+function viewManagers() {
+  connection.query("SELECT * FROM manager", function(err, res) {
+    if (err) throw err;
+    // console.log(res);
+    console.log(res);
+    console.table(res);
+    connection.end();
+  });
+}
+
+function saveManagerIdToEmployee(name, objects) {
+  console.log(name, objects);
+
+  objects.forEach(e => {
+    if (e.first_name + " " + e.last_name === name) {
+      return e.id;
+    }
   });
 }
