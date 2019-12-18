@@ -91,7 +91,6 @@ function addEmployee() {
     res.forEach(element => {
       managerNames.push(element.first_name + " " + element.last_name);
     });
-    connection.end();
   });
   inquirer
     .prompt([
@@ -132,8 +131,6 @@ function addEmployee() {
         },
         function(err) {
           if (err) throw err;
-
-          start();
         }
       );
     });
@@ -163,7 +160,6 @@ function deleteEmployee() {
           if (err) throw err;
           console.log("Your auction was created successfully!");
           // re-prompt the user for if they want to bid or post
-          start();
         }
       );
     });
@@ -178,7 +174,6 @@ function viewDepartments() {
     // res.forEach(e => {
     //   console.log(e.name);
     // });
-    connection.end();
   });
 }
 
@@ -187,11 +182,16 @@ function viewRoles() {
     if (err) throw err;
 
     // Log all results of the SELECT statement
+    console.log("this is the res", res);
+    let roleId = [];
+    res.forEach(e => {
+      console.log(e.id);
+    });
+    console.log("this is the role id", roleId);
     console.table(res);
     //   res.forEach(e => {
     //     console.log(e.name);
     //   });
-    connection.end();
   });
 }
 
@@ -200,11 +200,11 @@ function viewEmployees() {
     if (err) throw err;
 
     // Log all results of the SELECT statement
+
     console.table(res);
     //   res.forEach(e => {
     //     console.log(e.name);
     //   });
-    connection.end();
   });
 }
 
@@ -214,7 +214,6 @@ function viewManagers() {
     // console.log(res);
     console.log(res);
     console.table(res);
-    connection.end();
   });
 }
 
