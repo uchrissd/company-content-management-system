@@ -185,7 +185,7 @@ function viewRoles() {
     console.log("this is the res", res);
     let roleId = [];
     res.forEach(e => {
-      console.log(e.id);
+      roleId.push(e.id);
     });
     console.log("this is the role id", roleId);
     console.table(res);
