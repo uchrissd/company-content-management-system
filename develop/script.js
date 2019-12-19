@@ -47,6 +47,10 @@ function runProgram() {
           addRole();
           break;
 
+        case "Add a department?":
+          addDepartment();
+          break;
+
         case "Add an employee?":
           // Needs to call getMangerNames first to run a query to get the info, then runs another function to add employee to database
           addEmployee();
@@ -82,6 +86,42 @@ function runProgram() {
       }
     });
 }
+
+//Function that returns all of the data from the role table
+getRoleResponse = function() {
+  return new Promise(function(resolve, reject) {
+    connection.query("SELECT * FROM roles", function(err, res) {
+      if (err) throw err;
+
+      // return res;
+      resolve(res);
+    });
+  });
+};
+
+//Promise function that gets the exployee data from the employee table to be passed to a seperate function
+getEmployeeResponse = function() {
+  return new Promise(function(resolve, reject) {
+    connection.query("SELECT * FROM employee", function(err, res) {
+      if (err) throw err;
+
+      // return res;
+      resolve(res);
+    });
+  });
+};
+
+//Function that gets table data for all departments
+getDepartments = function() {
+  return new Promise(function(resolve, reject) {
+    connection.query("SELECT * FROM department", function(err, res) {
+      if (err) throw err;
+
+      // return res;
+      resolve(res);
+    });
+  });
+};
 
 function addEmployee() {
   inquirer
@@ -128,6 +168,7 @@ function addEmployee() {
     });
 }
 
+//Function for removing employees from the employee table
 function deleteEmployee() {
   inquirer
     .prompt([
@@ -154,28 +195,6 @@ function deleteEmployee() {
           // re-prompt the user for if they want to bid or post
         }
       );
-    });
-}
-
-function viewDepartments() {
-  connection.query("SELECT * FROM department", function(err, res) {
-    if (err) throw err;
-
-    // Log all results of the SELECT statement
-    console.table(res);
-    // res.forEach(e => {
-    //   console.log(e.name);
-    // });
-  });
-}
-
-function viewRoles() {
-  getRoleResponse()
-    .then(function(res) {
-      console.table(res);
-    })
-    .catch(function(err) {
-      console.log("Promise rejection error: " + err);
     });
 }
 
@@ -231,17 +250,7 @@ function addRole() {
     });
 }
 
-getRoleResponse = function() {
-  return new Promise(function(resolve, reject) {
-    connection.query("SELECT * FROM roles", function(err, res) {
-      if (err) throw err;
-
-      // return res;
-      resolve(res);
-    });
-  });
-};
-
+//Function for updating and changing roles in the role table
 function updateEmployeeRoles() {
   getEmployeeResponse()
     .then(function(res) {
@@ -279,28 +288,61 @@ function updateEmployeeRoles() {
     });
 }
 
-getEmployeeResponse = function() {
-  return new Promise(function(resolve, reject) {
-    connection.query("SELECT * FROM employee", function(err, res) {
-      if (err) throw err;
+//Function that adds new departments
+function addDepartment() {
+  getDepartments()
+    .then(function(res) {
+      console.log("this is the departments res", res);
+      inquirer
+        .prompt([
+          {
+            name: "title",
+            type: "input",
+            message: "What is the title of the new role"
+          },
 
-      // return res;
-      resolve(res);
+          {
+            name: "salary",
+            type: "input",
+            message: "What is the new role's salary?"
+          },
+
+          {
+            name: "department",
+            type: "list",
+            message: "Which department will this new role be a part of?",
+            choices: res
+          }
+        ])
+        .then(function(answer) {
+          console.log(answer.department);
+          let deptId;
+          res.forEach(e => {
+            if (e.name === answer.department) {
+              deptId = e.id;
+            }
+          });
+          connection.query(
+            "INSERT INTO roles SET ?",
+            {
+              title: answer.title,
+              salary: answer.salary,
+              department_id: deptId
+            },
+            function(err) {
+              if (err) throw err;
+            }
+          );
+        });
+    })
+    .catch(function(err) {
+      console.log("Promise rejection error: " + err);
     });
-  });
-};
+}
 
-getDepartments = function() {
-  return new Promise(function(resolve, reject) {
-    connection.query("SELECT * FROM department", function(err, res) {
-      if (err) throw err;
+//Functions for viewing tables are below
 
-      // return res;
-      resolve(res);
-    });
-  });
-};
-
+//Function that prints table of all employees
 function viewEmployees() {
   connection.query("SELECT * FROM employee", function(err, res) {
     if (err) throw err;
@@ -308,6 +350,7 @@ function viewEmployees() {
   });
 }
 
+//Function that prints table of managers
 function viewManagers() {
   connection.query("SELECT * FROM manager", function(err, res) {
     if (err) throw err;
@@ -315,4 +358,28 @@ function viewManagers() {
     console.log(res);
     console.table(res);
   });
+}
+
+//Function for printing table of departments
+function viewDepartments() {
+  connection.query("SELECT * FROM department", function(err, res) {
+    if (err) throw err;
+
+    // Log all results of the SELECT statement
+    console.table(res);
+    // res.forEach(e => {
+    //   console.log(e.name);
+    // });
+  });
+}
+
+//Function for printing table of roles
+function viewRoles() {
+  getRoleResponse()
+    .then(function(res) {
+      console.table(res);
+    })
+    .catch(function(err) {
+      console.log("Promise rejection error: " + err);
+    });
 }
