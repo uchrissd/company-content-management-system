@@ -73,7 +73,7 @@ function runProgram() {
           break;
 
         case "Update employee roles?":
-          updatesEmployeeRoles();
+          updateEmployeeRoles();
           break;
 
         case "exit":
@@ -179,6 +179,7 @@ function viewRoles() {
     });
 }
 
+// The expected output for this function is a new employee role in the role table in the employee tracker database.
 function addRole() {
   getDepartments()
     .then(function(res) {
@@ -230,16 +231,57 @@ function addRole() {
     });
 }
 
-// function getRoleResponse() {
-//   connection.query("SELECT * FROM roles", function(err, res) {
-//     if (err) throw err;
-//     return res;
-//   });
-// }
-
 getRoleResponse = function() {
   return new Promise(function(resolve, reject) {
     connection.query("SELECT * FROM roles", function(err, res) {
+      if (err) throw err;
+
+      // return res;
+      resolve(res);
+    });
+  });
+};
+
+function updateEmployeeRoles() {
+  getEmployeeResponse()
+    .then(function(res) {
+      console.log("this is the getemployee res", res);
+      inquirer
+        .prompt([
+          {
+            name: "employees",
+            type: "list",
+            message: "Which employee do you want to update?",
+            choices: res
+          }
+        ])
+        .then(function(answer) {
+          console.log(answer.employee);
+          let deptId;
+          res.forEach(e => {
+            if (e.name === answer.employee) {
+              employeeId = e.id;
+            }
+          });
+          connection.query(
+            "UPDATE employee SET ? WHERE ?",
+            {
+              id: employeeId
+            },
+            function(err) {
+              if (err) throw err;
+            }
+          );
+        });
+    })
+    .catch(function(err) {
+      console.log("Promise rejection error: " + err);
+    });
+}
+
+getEmployeeResponse = function() {
+  return new Promise(function(resolve, reject) {
+    connection.query("SELECT * FROM employee", function(err, res) {
       if (err) throw err;
 
       // return res;
@@ -258,17 +300,6 @@ getDepartments = function() {
     });
   });
 };
-// getEmployeeNames = function() {
-//   return new Promise(function(resolve, reject) {
-//     connection.query("SELECT Name, Surname FROM Employee", function(err, rows) {
-//       if (rows === undefined) {
-//         reject(new Error("Error rows is undefined"));
-//       } else {
-//         resolve(rows);
-//       }
-//     });
-//   });
-// };
 
 function viewEmployees() {
   connection.query("SELECT * FROM employee", function(err, res) {
@@ -283,14 +314,5 @@ function viewManagers() {
     // console.log(res);
     console.log(res);
     console.table(res);
-  });
-}
-
-function saveManagerIdToEmployee(name, managerArray) {
-  managerArray.forEach(e => {
-    // console.log(e);
-    if (e.first_name + " " + e.last_name === name) {
-      return e.id;
-    }
   });
 }
